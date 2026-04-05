@@ -21,8 +21,8 @@ public class CharacterController {
 
     @GetMapping("/random")
     @Operation(summary = "Find a random character", description = "Find a random character")
-    public Page<CharacterDto> getRandomCharacter(Pageable pageable) {
-        return service.getRandomCharacter(pageable);
+    public CharacterDto getRandomCharacter() {
+        return service.getRandomCharacter();
     }
 
     @GetMapping("/search")

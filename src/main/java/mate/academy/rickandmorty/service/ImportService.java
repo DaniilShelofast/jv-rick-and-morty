@@ -22,9 +22,13 @@ public class ImportService {
     @Transactional
     public void onApplicationReady() {
         List<CharacterResultDto> data = apiService.fetchAllPages();
-        List<Character> characters = data.stream()
-                .map(mapper::toEntity)
-                .toList();
-        repository.saveAll(characters);
+        if (repository.count() == 0) {
+            List<Character> characters = data.stream()
+                    .map(mapper::toEntity)
+                    .toList();
+            repository.saveAll(characters);
+        } else {
+            throw new RuntimeException("database should be empty");
+        }
     }
 }
