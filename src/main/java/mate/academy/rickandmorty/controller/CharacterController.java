@@ -8,8 +8,8 @@ import mate.academy.rickandmorty.service.CharacterService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Character API")
@@ -21,14 +21,14 @@ public class CharacterController {
 
     @GetMapping("/random")
     @Operation(summary = "Find a random character", description = "Find a random character")
-    public CharacterDto getRandomCharacter() {
-        return service.getRandomCharacter();
+    public Page<CharacterDto> getRandomCharacter(Pageable pageable) {
+        return service.getRandomCharacter(pageable);
     }
 
     @GetMapping("/search")
     @Operation(summary = "Find all characters", description = "Find all characters by symbol")
     public Page<CharacterDto> findAllByNameContainsIgnoreCase(Pageable pageable,
-                                                              @PathVariable String name) {
+                                                              @RequestParam String name) {
         return service.findAllByNameContainsIgnoreCase(pageable, name);
     }
 }

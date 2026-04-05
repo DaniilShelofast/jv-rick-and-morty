@@ -10,6 +10,7 @@ import mate.academy.rickandmorty.mapper.CharacterMapper;
 import mate.academy.rickandmorty.model.Character;
 import mate.academy.rickandmorty.repository.CharacterRepository;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,14 +33,13 @@ public class CharacterServiceImpl implements CharacterService {
 
     @Override
     @Transactional(readOnly = true)
-    public CharacterDto getRandomCharacter() {
-        long all = repository.count();
-        if (all == 0) {
+    public Page<CharacterDto> getRandomCharacter(Pageable pageable) {
+        long count = repository.count();
+        if (count == 0) {
             throw new EntityNotFoundException("database empty");
         }
-        Character character = repository
-                .getReferenceById(new Random().nextLong(all) + 1);
-        return mapper.toDto(character);
+        int random = new Random().nextInt(0, (int) count - 1);
+        return repository.findAll(PageRequest.of(random, 1)).map(mapper::toDto);
     }
 
     @Override

@@ -18,7 +18,7 @@ public class Character {
     private Long id;
     @NotNull
     @Column(unique = true)
-    private Integer externalId;
+    private Long externalId;
     @NotNull
     private String name;
     @NotNull

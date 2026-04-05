@@ -13,6 +13,7 @@ public interface CharacterMapper {
     CharacterDto toDto(Character character);
 
     @Mapping(source = "id", target = "externalId")
+    @Mapping(target = "id", ignore = true)
     Character toEntity(CharacterResultDto resultDto);
 
     List<Character> toEntities(List<CharacterResultDto> list);

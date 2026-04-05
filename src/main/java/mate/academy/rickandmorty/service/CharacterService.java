@@ -9,7 +9,7 @@ import org.springframework.data.domain.Pageable;
 public interface CharacterService {
     List<CharacterDto> saveAll(List<CharacterResultDto> resultsDto);
 
-    CharacterDto getRandomCharacter();
+    Page<CharacterDto> getRandomCharacter(Pageable pageable);
 
     Page<CharacterDto> findAllByNameContainsIgnoreCase(Pageable pageable, String name);
 }
