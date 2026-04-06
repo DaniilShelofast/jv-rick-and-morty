@@ -7,18 +7,22 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import mate.academy.rickandmorty.dto.external.CharacterResponseDataDto;
 import mate.academy.rickandmorty.dto.external.CharacterResultDto;
+import mate.academy.rickandmorty.exception.FetchingInterruptedException;
+import mate.academy.rickandmorty.exception.InvalidResponseDataException;
+import mate.academy.rickandmorty.model.HttpStatus;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
 public class ExternalApiService {
+    private static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(10);
+    private static final int SLEEP = 500;
     @Value("${service.url}")
     private String url;
     private final ObjectMapper objectMapper;
@@ -26,14 +30,14 @@ public class ExternalApiService {
     public CharacterResponseDataDto fetchPage(String url) {
         HttpRequest request = HttpRequest.newBuilder()
                 .GET()
-                .timeout(Duration.of(10, ChronoUnit.SECONDS))
+                .timeout(REQUEST_TIMEOUT)
                 .uri(URI.create(url))
                 .build();
 
         try {
             HttpResponse<String> response = HttpClient.newHttpClient()
                     .send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() != 200) {
+            if (response.statusCode() != HttpStatus.OK.getCode()) {
                 throw new RuntimeException("Failed request, status: " + response.statusCode());
             }
             return objectMapper.readValue(response.body(), CharacterResponseDataDto.class);
@@ -49,16 +53,16 @@ public class ExternalApiService {
         while (url != null) {
             CharacterResponseDataDto page = fetchPage(url);
             if (page == null || page.getResults() == null) {
-                throw new RuntimeException("error occurred with data storage");
+                throw new InvalidResponseDataException("error occurred with data storage");
             }
             result.addAll(page.getResults());
             url = page.getInfo() != null ? page.getInfo().getNext() : null;
             if (url != null) {
                 try {
-                    Thread.sleep(500);
+                    Thread.sleep(SLEEP);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
-                    throw new RuntimeException("Interrupted during fetching", e);
+                    throw new FetchingInterruptedException("Interrupted during fetching", e);
                 }
             }
         }

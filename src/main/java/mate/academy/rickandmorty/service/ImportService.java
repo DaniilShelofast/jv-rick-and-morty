@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class ImportService {
+    private static final int ZERO = 0;
     private final CharacterRepository repository;
     private final ExternalApiService apiService;
     private final CharacterMapper mapper;
@@ -22,13 +23,11 @@ public class ImportService {
     @Transactional
     public void onApplicationReady() {
         List<CharacterResultDto> data = apiService.fetchAllPages();
-        if (repository.count() == 0) {
+        if (repository.count() == ZERO) {
             List<Character> characters = data.stream()
                     .map(mapper::toEntity)
                     .toList();
             repository.saveAll(characters);
-        } else {
-            throw new RuntimeException("database should be empty");
         }
     }
 }
